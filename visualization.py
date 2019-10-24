@@ -12,10 +12,11 @@ type_whitelist = ['Car', 'Pedestrian', 'Cyclist']
 score_threshold = -10000
 width = 1242
 height = 374
-seq_list = ['0000', '0003']
+# seq_list = ['0000', '0003']
+seq_list = ['0004', '0005', '0006', '0007']
 
 
-def vis(result_sha, data_root, result_root):
+def vis(result_sha, data_root, image_root, result_root):
     def show_image_with_boxes(img, objects_res, object_gt, calib, save_path, height_threshold=0):
         img2 = np.copy(img)
 
@@ -34,7 +35,7 @@ def vis(result_sha, data_root, result_root):
         img.save(save_path)
 
     for seq in seq_list:
-        image_dir = os.path.join(data_root, 'image_02/%s' % seq)
+        image_dir = os.path.join(image_root, 'image_02/%s' % seq)
         calib_file = os.path.join(data_root, 'calib/%s.txt' % seq)
         result_dir = os.path.join(
             result_root, '%s/trk_withid/%s' % (result_sha, seq))
@@ -89,13 +90,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     result_root = './results'
+    image_root = '/media/deng/下载和图片/KITTI_raw/'
     result_sha = sys.argv[1]
     if 'val' in result_sha:
         data_root = './data/KITTI/resources/training'
+        image_root = image_root + 'training'
     elif 'test' in result_sha:
         data_root = './data/KITTI/resources/testing'
+        image_root = image_root + 'testing'
     else:
         print("wrong split!")
         sys.exit(1)
 
-    vis(result_sha, data_root, result_root)
+    vis(result_sha, data_root, image_root, result_root)
