@@ -358,6 +358,12 @@ class AB3DMOT(object):
         dets = dets[:, self.reorder]
         self.frame_count += 1
 
+        prev_trks = np.zeros((len(self.trackers), 7))
+        for t, trk in enumerate(prev_trks):
+            pos = self.trackers[t].kf.x.reshape((-1, 1))
+            trk[:] = [pos[0], pos[1], pos[2], pos[3], pos[4], pos[5], pos[6]]
+        prev_trks = np.ma.compress_rows(np.ma.masked_invalid(prev_trks))
+
         # N x 7 , #get predicted locations from existing trackers.
         trks = np.zeros((len(self.trackers), 7))
         to_del = []
@@ -380,7 +386,7 @@ class AB3DMOT(object):
         if len(trks_8corner) > 0:
             trks_8corner = np.stack(trks_8corner, axis=0)
         matched, unmatched_dets, unmatched_trks = self.associate_detections_to_trackers(
-            dets_8corner, trks_8corner, dets, trks, mu=0.1)
+            dets_8corner, trks_8corner, dets, prev_trks, mu=0.5)
 
         # update matched trackers with assigned detections
         for t, trk in enumerate(self.trackers):
@@ -433,14 +439,14 @@ class AB3DMOT(object):
                 iou_matrix[d, t] = iou3d(det, trk)[0]
 
         # deep features
-        boxes1, boxes2 = [], []
-        for d in dets:
-            for t in trks:
-                boxes1.append(d)
-                boxes2.append(t)
+        # boxes1, boxes2 = [], []
+        # for d in dets:
+        #     for t in trks:
+        #         boxes1.append(d)
+        #         boxes2.append(t)
 
         if mu != 1.0:
-            sim = self.feature_model.compute_similarity(self.seq, self.frame, boxes1, boxes2)
+            sim = self.feature_model.compute_similarity(self.seq, self.frame, dets, trks)
             sim_matrix = sim.reshape(len(dets), len(trks))
         else:
             sim_matrix = np.zeros((len(detections), len(trackers)), dtype=np.float32)
@@ -510,8 +516,8 @@ if __name__ == '__main__':
         for frame in range(int(seq_dets[:, 0].min()), int(seq_dets[:, 0].max()) + 1):
             print(frame)
 
-            if frame > 50:
-                break
+            # if frame > 50:
+            #     break
 
             save_trk_file = os.path.join(save_trk_dir, '%06d.txt' % frame)
             save_trk_file = open(save_trk_file, 'w')

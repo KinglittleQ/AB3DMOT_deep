@@ -44,7 +44,7 @@ def vis(result_sha, data_root, image_root, result_root):
 
         # load the list
         images_list, num_images = load_list_from_folder(image_dir)
-        num_images = 50
+        # num_images = 50
         print('number of images to visualize is %d' % num_images)
         start_count = 0
         for count in range(start_count, num_images):
@@ -81,7 +81,7 @@ def vis(result_sha, data_root, image_root, result_root):
                 save_3d_bbox_dir, '%06d.jpg' % (image_index))
 
             save_image_with_3dbbox_gt_path = os.path.abspath(save_image_with_3dbbox_gt_path)
-            print(save_image_with_3dbbox_gt_path)
+            # print(save_image_with_3dbbox_gt_path)
             show_image_with_boxes(image_tmp, object_res_filtered, [], 
                 calib_tmp, save_path=save_image_with_3dbbox_gt_path)
             print('number of objects to plot is %d' % (num_instances))

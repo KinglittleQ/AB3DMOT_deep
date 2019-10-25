@@ -44,6 +44,8 @@ class DeepFeatureModel:
 
         all_PC = self.getPC(seq, frame, calib)
 
+        time1_1 = time.time()
+
         PCs = []
         for box in boxes:
             PCs.append(self.processPC(box, all_PC))  # [3, n_points]
@@ -55,13 +57,19 @@ class DeepFeatureModel:
 
         time3 = time.time()
 
-        print(time2 - time1, time3 - time2)
+        print(time1_1 - time1, time2 - time1_1, time3 - time2)
 
         return features
 
-    def compute_similarity(self, seq, frame, boxes1, boxes2):
-        features1 = self.compute_feature(seq, frame, boxes1)
-        features2 = self.compute_feature(seq, frame, boxes2)
+    def compute_similarity(self, seq, frame, dets, trks):
+        features1 = self.compute_feature(seq, frame, dets)  # [N, C]
+        features2 = self.compute_feature(seq, frame - 1, trks)
+
+        n1, C = features1.size()
+        n2, _ = features2.size()
+        features1 = features1.unsqueeze(1).repeat(1, n2, 1).view(-1, C)  # [n1*n2, C]
+        features2 = features2.repeat(n1, 1)  # [n1*n2, C]
+
         sim = F.cosine_similarity(features1, features2, dim=1)  # [N]
         sim = sim.detach().cpu().numpy()
 
