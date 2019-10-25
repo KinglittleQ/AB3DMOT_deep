@@ -13,7 +13,7 @@ score_threshold = -10000
 width = 1242
 height = 374
 # seq_list = ['0000', '0003']
-seq_list = ['0004', '0005', '0006', '0007']
+seq_list = ['0000']
 
 
 def vis(result_sha, data_root, image_root, result_root):
@@ -44,6 +44,7 @@ def vis(result_sha, data_root, image_root, result_root):
 
         # load the list
         images_list, num_images = load_list_from_folder(image_dir)
+        num_images = 50
         print('number of images to visualize is %d' % num_images)
         start_count = 0
         for count in range(start_count, num_images):
@@ -78,6 +79,9 @@ def vis(result_sha, data_root, image_root, result_root):
             num_instances = len(object_res_filtered)
             save_image_with_3dbbox_gt_path = os.path.join(
                 save_3d_bbox_dir, '%06d.jpg' % (image_index))
+
+            save_image_with_3dbbox_gt_path = os.path.abspath(save_image_with_3dbbox_gt_path)
+            print(save_image_with_3dbbox_gt_path)
             show_image_with_boxes(image_tmp, object_res_filtered, [], 
                 calib_tmp, save_path=save_image_with_3dbbox_gt_path)
             print('number of objects to plot is %d' % (num_instances))
@@ -90,7 +94,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     result_root = './results'
-    image_root = '/media/deng/下载和图片/KITTI_raw/'
+    image_root = '/private/benchmarks/KITTI_tracking/'
     result_sha = sys.argv[1]
     if 'val' in result_sha:
         data_root = './data/KITTI/resources/training'
